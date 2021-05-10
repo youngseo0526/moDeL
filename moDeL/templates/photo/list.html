@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+    <div class="container" style="padding:50px 0px 0px 0px;">
+        <center>
+            <h2>너희들도 moDeL 어때팀의 <mark>인물 구도 추천 서비스</mark>입니다!</h2>
+        </center>
+    </div>
+    <div style="padding:50px 0px 0px 0px;">
+        <center>
+            <h3 id ="ratio"></h3>
+        </center>
+    </div>
+
+    <tr>
+    {% for post in photos %}
+    <div class="row">
+
+      <center>
+    <div class="col-md-8" panel panel-default>
+
+        <a href="{% url 'photo:photo_delete' pk=post.id %}" ><img id="image" src="{{ post.photo.url }}" ></a>
+
+    </div>
+          </center>
+    <div class="col-md-2"></div>
+    </div>
+    {% endfor %}
+    </tr>
+{% endblock %}
