@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}-Delete{% endblock %}
+
+{% block content %}
+    <div class="row" style="padding:50px 0px 0px 0px;" >
+    <div class="col-md-2"></div>
+    <div class="col-md-8 panel panel-default">
+        <center>
+       <div class="alert alert-info" >
+           진짜 삭제하시겠어용?
+       </div>
+        <form action="" method="post">
+            {{ form.as_p }}
+            {%  csrf_token %}
+            <input type="submit" class="btn btn-danger" value="삭제하기">
+        </form>
+        </center>
+    </div>
+    <div class="col-md-2"></div>
+    </div>
+{% endblock %}
+

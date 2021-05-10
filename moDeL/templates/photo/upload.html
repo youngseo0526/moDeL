@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}-Upload{% endblock %}
+
+{% block content %}
+    <div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 panel panel-default">
+        <center>
+            <form action="" method="post"  enctype="multipart/form-data" style="padding: 20px 0px 0px 0px;">
+                {{ form.as_p }}
+                {% csrf_token %}
+                <input type="submit" class="btn btn-dark" name="images" value="Upload">
+            </form>
+        </center>
+    </div>
+    <div class="col-md-2"></div>
+    </div>
+{% endblock %}
+
+{% block js %}
+          <script>
+                var data = new Array();
+                var size = 0;
+                var width = 0;
+                var height = 0;
+                var first_face = 0.0;
+                var last_face = 0.0;
+                var last_foot = 0.0;
+                var ratio = 0.0;
+
+                async function loadAndPredict() {
+                    const net = await bodyPix.load(/** optional arguments, see below **/);
+
+                    const segmentation = await net.segmentPersonParts( {{ photo.photo }}, {
+                        flipHorizontal: false,
+                        internalResolution: 'medium',
+                        segmentationThreshold: 0.7
+                    });
+
+                    console.log(segmentation);
+
+                    width = segmentation.width;
+                    height = segmentation.height;
+                    size = width * height;
+
+                    for (var i = 0; i < size; i++) {
+                        data[i] = segmentation.data[i];
+                    }
+
+                    console.log(data)
+
+                    loop1:
+                        for (var y = 0; y < height; y++) {
+                            for (var x = 0; x < width; x++) {
+                                if (data[y * width + x] == 1) {
+                                    first_face = y
+                                    break loop1;
+                                }
+                            }
+                        }
+
+                    loop2:
+                        for (var y = height - 1; y >= 0; y--) {
+                            for (var x = 0; x < width; x++) {
+                                if (data[y * width + x] == 1) {
+                                    last_face = y
+                                    break loop2;
+                                }
+                            }
+                        }
+
+                    loop3:
+                        for (var y = height - 1; y >= 0; y--) {
+                            for (var x = 0; x < width; x++) {
+                                if (data[y * width + x] == 23) {
+                                    last_foot = y
+                                    break loop3;
+                                }
+                            }
+                        }
+
+                    console.log(first_face, last_face, last_foot)
+
+                    ratio = (Math.abs((last_foot - first_face) / (last_face - first_face)))
+                    console.log(ratio)
+
+                }
+                loadAndPredict();
+      </script>
+{% endblock %}

@@ -1,0 +1,7 @@
+{
+  "name": "moDeL",
+  "version": "1.0.0",
+  "dependencies": {
+    "@tensorflow-models/body-pix": "^2.2.0"
+  }
+}
