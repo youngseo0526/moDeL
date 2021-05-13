@@ -1,32 +1,290 @@
 {% extends 'base.html' %}
+{%  block head %}
+       <style>
+        canvas {
+            position: absolute;
+            transform: translate(-50%, -20%);
+            top: 75%;
+            left: 50%;
 
+        }
+
+        video {
+            position: absolute;
+            transform: translate(-50%, -20%);
+            top: 75%;
+            left: 50%;
+        }
+
+        .photo {
+            position: absolute;
+            transform: translate(-50%, 400px);
+            top: 75%;
+            left: 50%;
+        }
+
+        .image {
+            width: auto; height: auto;
+            max-width: 400px;
+            max-height: 400px;
+        }
+    </style>
+{% endblock %}
 {% block title %}{% endblock %}
 
 {% block content %}
-    <div class="container" style="padding:50px 0px 0px 0px;">
-        <center>
-            <h2>너희들도 moDeL 어때팀의 <mark>인물 구도 추천 서비스</mark>입니다!</h2>
-        </center>
-    </div>
-    <div style="padding:50px 0px 0px 0px;">
-        <center>
-            <h3 id ="ratio"></h3>
-        </center>
+    <center>
+        <div class="container" style="padding:50px 0px 0px 0px;">
+
+                <h2>너희들도 moDeL 어때팀의 <mark>인물 구도 추천 서비스</mark>입니다!</h2>
+        </div>
+        <div style="padding:50px 0px 0px 0px;">
+                <h4 id ="ratio"></h4>
+                <h3 id ="realtime_ratio" style="padding:10px 0px 15px 0px;"></h3>
+                <h4 id ="result" style="padding:0px 0px 15px 0px;"></h4>
+                <button type="button" onclick="location.href='{% url 'photo:photo_upload' %}'" class="btn btn-dark btn-lg">Upload</button>
+                <video id="video" width="640" height="480" autoplay muted playsinline></video>
+                <canvas id="canvas"></canvas>
+        </div>
+    <div class="photo">
+
+    <a  style="text-decoration:none; color: black" onclick="this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0)">
+          <button class="btn btn-dark" type="button" onMouseOver="this.innerHTML='사진 닫기'" onMouseOut="this.innerHTML='사진 보기'">사진 보기</button>
+    </a><div style="DISPLAY: none">
+
+        <tr>
+        {% for post in photos %}
+        <div class="row">
+
+            <div class="col-md-8" panel panel-default>
+
+            <a href="{% url 'photo:photo_delete' pk=post.id %}" ><img id="image" class="image" src="{{ post.photo.url }}" style="padding:10px 0px 0px 0px;"></a>
+
+        </div>
+        <div class="col-md-2"></div>
+        </div>
+        {% endfor %}
+        </tr>
+
     </div>
 
-    <tr>
-    {% for post in photos %}
-    <div class="row">
-
-      <center>
-    <div class="col-md-8" panel panel-default>
-
-        <a href="{% url 'photo:photo_delete' pk=post.id %}" ><img id="image" src="{{ post.photo.url }}" ></a>
-
     </div>
-          </center>
-    <div class="col-md-2"></div>
-    </div>
-    {% endfor %}
-    </tr>
+    </center>
 {% endblock %}
+
+{% block js %}
+    <script src="https://cdn.jsdelivr.net/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        var input_ratio = 0.0;
+        var realtime_ratio = 0.0;
+
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext("2d");
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(function (stream) {
+            video.srcObject = stream;
+        });
+
+
+        async function loadAndPredict() {
+            var data = new Array();
+            var size = 0;
+            var width = 0;
+            var height = 0;
+            var first_face = 0.0;
+            var last_face = 0.0;
+            var last_foot = 0.0;
+            var ratio = 0.0;
+            var ratio_sum = 0.0;
+
+            for (var i = 0; i < document.images.length; i++) {
+                const net = await bodyPix.load(/** optional arguments, see below **/);
+
+                const segmentation = await net.segmentPersonParts(document.images[i], {
+                    flipHorizontal: false,
+                    internalResolution: 'medium',
+                    segmentationThreshold: 0.7
+                });
+
+                //console.log(segmentation);
+
+
+                for (var i = 0; i < size; i++) {
+                    data[i] = segmentation.data[i];
+                }
+
+                width = segmentation.width;
+                height = segmentation.height;
+                size = width * height;
+
+                for (var i = 0; i < size; i++) {
+                        data[i] = segmentation.data[i];
+                }
+
+                loop1:
+                    for (var y = 0; y < height; y++) {
+                        for (var x = 0; x < width; x++) {
+                            if (data[y * width + x] == 1) {
+                                first_face = y
+                                break loop1;
+                            }
+                        }
+                    }
+
+                loop2:
+                    for (var y = height - 1; y >= 0; y--) {
+                        for (var x = 0; x < width; x++) {
+                            if (data[y * width + x] == 1) {
+                                last_face = y
+                                break loop2;
+                            }
+                        }
+                    }
+
+                loop3:
+                    for (var y = height - 1; y >= 0; y--) {
+                        for (var x = 0; x < width; x++) {
+                            if (data[y * width + x] == 23) {
+                                last_foot = y
+                                break loop3;
+                            }
+                        }
+                    }
+
+                ratio = (Math.abs((last_foot - first_face) / (last_face - first_face)));
+                console.log( first_face ,last_foot, last_face);
+
+                ratio_sum = ratio_sum + ratio;
+            }
+            input_ratio = (ratio_sum / document.images.length).toFixed(2);
+
+            document.getElementById('ratio').innerHTML = "입력하신 사진들로 계산된 희망 비율은 " + input_ratio + " 입니다 😮 ";
+        }
+
+        loadAndPredict();
+
+        bodyPix.load().then(model => {
+
+            video.onloadeddata = (event) => {
+                predict();
+            };
+
+            function predict() {
+
+                var data = new Array();
+                var size = 0;
+                var width = 0;
+                var height = 0;
+                var first_face = 0.0;
+                var last_face = 0.0;
+                var last_foot = 0.0;
+
+                //model.segmentPerson(video).then(segmentation => {
+                model.segmentPersonParts(video).then(segmentation => {
+                    //model.segmentMultiPerson(video).then(segmentation => {
+                    //model.segmentMultiPersonParts(video).then(segmentation => {
+
+                    //console.log(segmentation);
+
+                    width = segmentation.width;
+                    height = segmentation.height;
+                    size = width * height;
+
+                    data = segmentation.data;
+
+                    //console.log(data)
+
+
+                    loop1:
+                        for (var y = 0; y < height; y++) {
+                            for (var x = 0; x < width; x++) {
+                                if (data[y * width + x] == 1) {
+                                    first_face = y
+                                    break loop1;
+                                }
+                            }
+                        }
+
+                    loop2:
+                        for (var y = height - 1; y >= 0; y--) {
+                            for (var x = 0; x < width; x++) {
+                                if (data[y * width + x] == 1) {
+                                    last_face = y
+                                    break loop2;
+                                }
+                            }
+                        }
+
+                    loop3:
+                        for (var y = height - 1; y >= 0; y--) {
+                            for (var x = 0; x < width; x++) {
+                                if (data[y * width + x] == 23) {
+                                    last_foot = y
+                                    break loop3;
+                                }
+                            }
+                        }
+
+                    //console.log(first_face, last_face, last_foot)
+
+                    realtime_ratio = (Math.abs((last_foot - first_face) / (last_face - first_face))).toFixed(2);
+
+                    //console.log(realtime_ratio)
+
+                    document.getElementById('realtime_ratio').innerHTML = "당신의 현재 비율은 " + realtime_ratio  + "입니다!";
+
+                    canvas.width = video.width;
+                    canvas.height = video.height;
+                    // const foregroundColor = { r: 255, g: 255, b: 255, a: 255 };
+                    // const backgroundColor = { r: 0, g: 0, b: 0, a: 255 };
+                    // const mask = bodyPix.toMask(
+                    //     segmentation, foregroundColor, backgroundColor,
+                    //     true);
+                    // const mask = bodyPix.toMask(segmentation);
+                    const mask = bodyPix.toColoredPartMask(segmentation);
+                    //console.log("mask :", mask);
+                    const opacity = 0.7;
+                    const flipHorizontal = false;
+                    const maskBlurAmount = 0; //0~20
+
+
+                    // bodyPix.drawMask(
+                    //     canvas,
+                    //     video,
+                    //     mask,
+                    //     opacity,
+                    //     maskBlurAmount,
+                    //     flipHorizontal
+                    // );
+
+                    if ( Math.abs(input_ratio - realtime_ratio) > 0.5)
+                        document.getElementById('result').innerHTML = "모델 도전에 실패했습니다 😥";
+                    else if ( Math.abs(input_ratio - realtime_ratio) > 0.5)
+                        document.getElementById('result').innerHTML = "모델 도전에 성공했습니다 🎉";
+
+
+                    const pixelCellWidth = 10.0;
+                    bodyPix.drawPixelatedMask(
+                        canvas, video, mask,
+                        opacity, maskBlurAmount, flipHorizontal,
+                        pixelCellWidth);
+
+                    //~Parts 에서만 유효
+                    // const blurBodyPartIds = [0, 1];
+                    // bodyPix.blurBodyPart(
+                    //     canvas, video, segmentation,
+                    //     blurBodyPartIds,
+                    //     20,  //blurBodyPartAmount 1~20
+                    //     3, //edgeBlurAmount 1~20
+                    //     flipHorizontal);
+
+                });
+                requestAnimationFrame(predict);
+            }
+        });
+    </script>
+{%  endblock %}
+
+
