@@ -44,12 +44,22 @@
                 var last_face = 0.0;
                 var last_foot = 0.0;
                 var ratio = 0.0;
+                var ratio_sum=0.0;
+                var ratio_avr = 0.0;
+
+                function ratio_cal() {
+                    ratio = (Math.abs((last_foot - first_face) / (last_face - first_face)));
+                    console.log(ratio);
+                    ratio_sum += ratio;
+                    console.log(ratio_sum);
+                    ratio_avr = (ratio_sum / document.images.length).toFixed(2);
+                }
 
                 async function loadAndPredict() {
-                    for (var i = 0; i < document.images.length; i++) {
-                        const net = await bodyPix.load(/** optional arguments, see below **/);
+                    for (var index = 0; index < document.images.length; index++) {
+                        const net = await bodyPix.load();
 
-                        const segmentation = await net.segmentPersonParts(document.images[i], {
+                        const segmentation = await net.segmentPersonParts(document.images[index], {
                             flipHorizontal: false,
                             internalResolution: 'medium',
                             segmentationThreshold: 0.7
@@ -97,18 +107,17 @@
                                 }
                             }
 
-                        console.log(first_face, last_face, last_foot)
-
-                        ratio = ratio + (Math.abs((last_foot - first_face) / (last_face - first_face)))
-                        console.log(ratio)
+                        console.log(first_face, last_face, last_foot);
+                        await ratio_cal();
 
                     }
-                    document.getElementById('ratio').innerHTML = "당신의 비율은 " + ratio / document.images.length + " : " + Math.abs(10 - ratio / document.images.length) +"입니다 😮";
+                    //document.getElementById('ratio').innerHTML = "당신의 비율은 " + ratio / document.images.length + " : " + Math.abs(10 - ratio / document.images.length) +"입니다 😮";
+                    document.getElementById('ratio').innerHTML = "입력하신 사진들로 계산된 희망 비율은 " + ratio_avr + " 입니다 😮 ";
 
                 }
 
-
                 loadAndPredict();
+
 
       </script>
     {% block js %} {% endblock %}
