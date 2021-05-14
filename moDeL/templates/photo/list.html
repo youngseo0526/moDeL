@@ -40,6 +40,7 @@
         </div>
         <div style="padding:50px 0px 0px 0px;">
                 <h4 id ="ratio"></h4>
+                <h5 id ="notFound"></h5>
                 <h3 id ="realtime_ratio" style="padding:10px 0px 15px 0px;"></h3>
                 <h4 id ="result" style="padding:0px 0px 15px 0px;"></h4>
                 <button type="button" onclick="location.href='{% url 'photo:photo_upload' %}'" class="btn btn-dark btn-lg">Upload</button>
@@ -81,52 +82,46 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext("2d");
-
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-        .then(function (stream) {
-            video.srcObject = stream;
-        });
-
+        const element = document.getElementById('notFound');
 
         async function loadAndPredict() {
-            var data = new Array();
             var size = 0;
             var width = 0;
             var height = 0;
+            var data = new Array();
             var first_face = 0.0;
             var last_face = 0.0;
             var last_foot = 0.0;
             var ratio = 0.0;
             var ratio_sum = 0.0;
+            if(document.images.length == 0) {
+                document.getElementById('notFound').innerHTML = "❗😲 입력된 사진이 없어요 😲❗" + '<br/>' + "❓🧐 마음에 드는 사진을 넣어보는게 어때요? 🧐❓";
+            }
+            for (var index = 0; index < document.images.length; index++) {
+                element.innerText='';
+                document.getElementById('ratio').innerHTML = "👩‍💻 *** 입력하신 사진들로 비율을 계산하는 중이에요 *** 👨‍💻";
+                const net = await bodyPix.load();
 
-            for (var i = 0; i < document.images.length; i++) {
-                const net = await bodyPix.load(/** optional arguments, see below **/);
-
-                const segmentation = await net.segmentPersonParts(document.images[i], {
+                const segmentation = await net.segmentPersonParts(document.images[index], {
                     flipHorizontal: false,
                     internalResolution: 'medium',
                     segmentationThreshold: 0.7
                 });
-
-                //console.log(segmentation);
-
-
-                for (var i = 0; i < size; i++) {
-                    data[i] = segmentation.data[i];
-                }
 
                 width = segmentation.width;
                 height = segmentation.height;
                 size = width * height;
 
                 for (var i = 0; i < size; i++) {
-                        data[i] = segmentation.data[i];
+                    data[i] = segmentation.data[i];
                 }
+
+                console.log(data)
 
                 loop1:
                     for (var y = 0; y < height; y++) {
                         for (var x = 0; x < width; x++) {
-                            if (data[y * width + x] == 1) {
+                            if (data[y * width + x] == 0 || data[y * width + x] == 1) {
                                 first_face = y
                                 break loop1;
                             }
@@ -136,7 +131,7 @@
                 loop2:
                     for (var y = height - 1; y >= 0; y--) {
                         for (var x = 0; x < width; x++) {
-                            if (data[y * width + x] == 1) {
+                            if (data[y * width + x] == 0 || data[y * width + x] == 1) {
                                 last_face = y
                                 break loop2;
                             }
@@ -146,62 +141,105 @@
                 loop3:
                     for (var y = height - 1; y >= 0; y--) {
                         for (var x = 0; x < width; x++) {
-                            if (data[y * width + x] == 23) {
+                            if (data[y * width + x] == 22 || data[y * width + x] == 23) {
                                 last_foot = y
                                 break loop3;
                             }
                         }
                     }
 
-                ratio = (Math.abs((last_foot - first_face) / (last_face - first_face)));
-                console.log( first_face ,last_foot, last_face);
+                console.log(first_face, last_face, last_foot);
 
-                ratio_sum = ratio_sum + ratio;
+                ratio = (Math.abs((last_foot - first_face) / (last_face - first_face)));
+                console.log(ratio);
+
+                ratio_sum += ratio;
+                console.log(ratio_sum);
+
+                if(index == document.images.length-1)
+                    done = 1;
+
             }
             input_ratio = (ratio_sum / document.images.length).toFixed(2);
-
-            document.getElementById('ratio').innerHTML = "입력하신 사진들로 계산된 희망 비율은 " + input_ratio + " 입니다 😮 ";
+            if(done == 1)
+                document.getElementById('ratio').innerHTML = "입력하신 사진들로 계산된 희망 비율은 " + input_ratio + " 입니다 😮 ";
         }
 
         loadAndPredict();
 
+        if(document.images.length != 0) {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(function (stream) {
+                video.srcObject = stream;
+            });
+        }
+
+        var x1 = 0;
+        var x2 = 0;
+        var y1 = 0;
+        var y2 = 0;
+
+        function draw_rec_red() {
+            context.beginPath();
+            context.strokeStyle = "red";
+            context.lineWidth = "5";
+            context.moveTo(x1, y1);
+            context.lineTo(x1, y2);
+            context.lineTo(x2, y2);
+            context.lineTo(x2, y1);
+            context.lineTo(x1, y1);
+            context.stroke();
+            context.closePath();
+        }
+
+        function draw_rec_green() {
+            context.beginPath();
+            context.strokeStyle = "green";
+            context.lineWidth = "5";
+            context.moveTo(x1, y1);
+            context.lineTo(x1, y2);
+            context.lineTo(x2, y2);
+            context.lineTo(x2, y1);
+            context.lineTo(x1, y1);
+            context.stroke();
+            context.closePath();
+        }
+
         bodyPix.load().then(model => {
+            var data = new Array();
+            var size = 0;
+            var width = 0;
+            var height = 0;
+            var first_face = 0.0;
+            var last_face = 0.0;
+            var last_foot = 0.0;
 
             video.onloadeddata = (event) => {
                 predict();
             };
 
             function predict() {
-
-                var data = new Array();
-                var size = 0;
-                var width = 0;
-                var height = 0;
-                var first_face = 0.0;
-                var last_face = 0.0;
-                var last_foot = 0.0;
-
-                //model.segmentPerson(video).then(segmentation => {
                 model.segmentPersonParts(video).then(segmentation => {
-                    //model.segmentMultiPerson(video).then(segmentation => {
-                    //model.segmentMultiPersonParts(video).then(segmentation => {
+                    console.log(segmentation);
+                    canvas.width = video.width;
+                    canvas.height = video.height;
+                    const mask = bodyPix.toColoredPartMask(segmentation);
 
-                    //console.log(segmentation);
+                    console.log(mask);
 
                     width = segmentation.width;
                     height = segmentation.height;
                     size = width * height;
 
-                    data = segmentation.data;
-
-                    //console.log(data)
-
-
+                    for (var i = 0; i < size; i++) {
+                        data[i] = segmentation.data[i];
+                    }
                     loop1:
                         for (var y = 0; y < height; y++) {
                             for (var x = 0; x < width; x++) {
-                                if (data[y * width + x] == 1) {
-                                    first_face = y
+                                if (data[y * width + x] == 0 || data[y * width + x] == 1) {
+                                    first_face = y;
+                                    y1 = y;
                                     break loop1;
                                 }
                             }
@@ -210,8 +248,9 @@
                     loop2:
                         for (var y = height - 1; y >= 0; y--) {
                             for (var x = 0; x < width; x++) {
-                                if (data[y * width + x] == 1) {
-                                    last_face = y
+                                if (data[y * width + x] == 0 || data[y * width + x] == 1) {
+                                    last_face = y;
+                                    //y2 = y;
                                     break loop2;
                                 }
                             }
@@ -220,70 +259,50 @@
                     loop3:
                         for (var y = height - 1; y >= 0; y--) {
                             for (var x = 0; x < width; x++) {
-                                if (data[y * width + x] == 23) {
-                                    last_foot = y
+                                if (data[y * width + x] == 22 || data[y * width + x] == 23) {
+                                    last_foot = y;
+                                    y2 = y;
                                     break loop3;
                                 }
                             }
                         }
 
-                    //console.log(first_face, last_face, last_foot)
-
+                    loop4:
+                        for (var x = 0; x < width; x++) {
+                            for (var y = 0; y < height; y++) {
+                                if (data[y * width + x] != -1) {
+                                    x1 = x;
+                                    break loop4;
+                                }
+                            }
+                        }
+                    loop5:
+                        for (var x = width - 1; x >= 0; x--) {
+                            for (var y = 0; y < height; y++) {
+                                if (data[y * width + x] != -1) {
+                                    x2 = x;
+                                    break loop5;
+                                }
+                            }
+                        }
                     realtime_ratio = (Math.abs((last_foot - first_face) / (last_face - first_face))).toFixed(2);
-
-                    //console.log(realtime_ratio)
-
                     document.getElementById('realtime_ratio').innerHTML = "당신의 현재 비율은 " + realtime_ratio  + "입니다!";
 
-                    canvas.width = video.width;
-                    canvas.height = video.height;
-                    // const foregroundColor = { r: 255, g: 255, b: 255, a: 255 };
-                    // const backgroundColor = { r: 0, g: 0, b: 0, a: 255 };
-                    // const mask = bodyPix.toMask(
-                    //     segmentation, foregroundColor, backgroundColor,
-                    //     true);
-                    // const mask = bodyPix.toMask(segmentation);
-                    const mask = bodyPix.toColoredPartMask(segmentation);
-                    //console.log("mask :", mask);
-                    const opacity = 0.7;
-                    const flipHorizontal = false;
-                    const maskBlurAmount = 0; //0~20
-
-
-                    // bodyPix.drawMask(
-                    //     canvas,
-                    //     video,
-                    //     mask,
-                    //     opacity,
-                    //     maskBlurAmount,
-                    //     flipHorizontal
-                    // );
-
-                    if ( Math.abs(input_ratio - realtime_ratio) > 0.5)
+                    if ( input_ratio- realtime_ratio > 0.5) {
+                        draw_rec_red();
                         document.getElementById('result').innerHTML = "모델 도전에 실패했습니다 😥";
-                    else if ( Math.abs(input_ratio - realtime_ratio) > 0.5)
+                    }
+                    else {
+                        draw_rec_green();
                         document.getElementById('result').innerHTML = "모델 도전에 성공했습니다 🎉";
+                    }
 
-
-                    const pixelCellWidth = 10.0;
-                    bodyPix.drawPixelatedMask(
-                        canvas, video, mask,
-                        opacity, maskBlurAmount, flipHorizontal,
-                        pixelCellWidth);
-
-                    //~Parts 에서만 유효
-                    // const blurBodyPartIds = [0, 1];
-                    // bodyPix.blurBodyPart(
-                    //     canvas, video, segmentation,
-                    //     blurBodyPartIds,
-                    //     20,  //blurBodyPartAmount 1~20
-                    //     3, //edgeBlurAmount 1~20
-                    //     flipHorizontal);
-
+                    console.log(x1, x2, y1, y2);
                 });
                 requestAnimationFrame(predict);
             }
         });
+
     </script>
 {%  endblock %}
 
