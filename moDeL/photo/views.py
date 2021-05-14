@@ -19,10 +19,13 @@ def photo_list(request):
     return render(request, 'photo/list.html', {'photos': photos})
 
 
-
 def ratio_get(request):
-    ratio = request.GET.get('ratio')
-    return render(request, {'ratio': ratio})
+    if request.method == 'GET':
+        ratio = request.GET['ratio']
+    data = {
+        'data': ratio,
+    }
+    return render(request, 'photo/realtime.html', ratio)
 
 
 def ratio_calculate(array, height, width):
@@ -74,7 +77,4 @@ class PhotoDeleteView(DeleteView):
     model = Photo
     success_url = '/'
     template_name = 'photo/delete.html'
-
-def Realtime(request):
-    return render(request, 'photo/realtime.html')
 

@@ -44,51 +44,11 @@
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext("2d");
 
-
-    var data = new Array();
-    var size = 0;
-    var width = 0;
-    var height = 0;
-    var first_face = 0;
-    var last_face = 0;
-    var last_foot = 0;
-    var x1 = 0;
-    var x2 = 0;
-    var y1 = 0;
-    var y2 = 0;
-    var ratio = 7.0;
-
-
     navigator.mediaDevices.getUserMedia({ video: true, audio: false })
         .then(function (stream) {
             video.srcObject = stream;
         });
 
-    function draw_rec_red() {
-        context.beginPath();
-        context.strokeStyle = "red";
-        context.lineWidth = "5";
-        context.moveTo(x1, y1);
-        context.lineTo(x1, y2);
-        context.lineTo(x2, y2);
-        context.lineTo(x2, y1);
-        context.lineTo(x1, y1);
-        context.stroke();
-        context.closePath();
-    }
-
-    function draw_rec_green() {
-        context.beginPath();
-        context.strokeStyle = "green";
-        context.lineWidth = "5";
-        context.moveTo(x1, y1);
-        context.lineTo(x1, y2);
-        context.lineTo(x2, y2);
-        context.lineTo(x2, y1);
-        context.lineTo(x1, y1);
-        context.stroke();
-        context.closePath();
-    }
 
     bodyPix.load().then(model => {
 
@@ -103,68 +63,21 @@
                 canvas.height = video.height;
                 const mask = bodyPix.toColoredPartMask(segmentation);
 
-                console.log(mask);
 
-                width = segmentation.width;
-                height = segmentation.height;
-                size = width * height;
+                const opacity = 0.7;
+                const flipHorizontal = true;
+                const maskBlurAmount = 0; //0~20
+                const pixelCellWidth = 5.0;
 
-                for (var i = 0; i < size; i++) {
-                    data[i] = segmentation.data[i];
-                }
-                loop1:
-                    for (var i1 = 0; i1 < height; i1++) {
-                        for (var j1 = 0; j1 < width; j1++) {
-                            if (data[i1 * width + j1] == 0 || data[i1 * width + j1] == 1) {
-                                y1 = i1
-                                break loop1;
-                            }
-                        }
-                    }
+                bodyPix.drawPixelatedMask(
+                    canvas, video, mask,
+                    opacity, maskBlurAmount, flipHorizontal,
+                    pixelCellWidth);
 
-                loop2:
-                    for (var i2 = height - 1; i2 >= 0; i2--) {
-                        for (var j2 = 0; j2 < width; j2++) {
-                            if (data[i2 * width + j2] == 0 || data[i2 * width + j2] == 1) {
-                               y2 = i2
-                                break loop2;
-                            }
-                        }
-                    }
-                loop3:
-                    for (var j3 = 0; j3 < width; j3++) {
-                        for (var i3 = 0; i3 < height; i3++) {
-                            if (data[i3 * width + j3] == 0 || data[i3 * width + j3] == 1) {
-                                x1 = j3
-                                break loop3;
-                            }
-                        }
-                    }
-
-                loop4:
-                    for (var j4 = width - 1; j4 >= 0; j4--) {
-                        for (var i4 = 0; i4 < height; i4++) {
-                            if (data[i4 * width + j4] == 0 || data[i4 * width + j4] == 1) {
-                                x2 = j4
-                                break loop4;
-                            }
-                        }
-                    }
-
-                if(Math.abs(y2-y1) <= ratio) {
-                    draw_rec_green();
-                }
-                else {
-                    draw_rec_red();
-                }
-                console.log(x1, x2, y1, y2);
             });
             requestAnimationFrame(predict);
         }
     });
-
-
-
 </script>
 <script src="/static/posenet.js"></script>
 
