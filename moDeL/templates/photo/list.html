@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {%  block head %}
-       <style>
+    <style>
         canvas {
             position: absolute;
             transform: translate(-50%, -20%);
@@ -34,41 +34,36 @@
 
 {% block content %}
     <center>
-        <div class="container" style="padding:50px 0px 0px 0px;">
+    <div class="container" style="padding:50px 0px 0px 0px;">
 
-                <h2>너희들도 moDeL 어때팀의 <mark>인물 구도 추천 서비스</mark>입니다!</h2>
-        </div>
-        <div style="padding:50px 0px 0px 0px;">
-                <h4 id ="ratio"></h4>
-                <h5 id ="notFound"></h5>
-                <h3 id ="realtime_ratio" style="padding:10px 0px 15px 0px;"></h3>
-                <h4 id ="result" style="padding:0px 0px 15px 0px;"></h4>
-                <button type="button" onclick="location.href='{% url 'photo:photo_upload' %}'" class="btn btn-dark btn-lg">Upload</button>
-                <video id="video" width="640" height="480" autoplay muted playsinline></video>
-                <canvas id="canvas"></canvas>
-        </div>
-    <div class="photo">
-
-    <a  style="text-decoration:none; color: black" onclick="this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0)">
-          <button class="btn btn-dark" type="button" onMouseOver="this.innerHTML='사진 닫기'" onMouseOut="this.innerHTML='사진 보기'">사진 보기</button>
-    </a><div style="DISPLAY: none">
-
-        <tr>
-        {% for post in photos %}
-        <div class="row">
-
-            <div class="col-md-8" panel panel-default>
-
-            <a href="{% url 'photo:photo_delete' pk=post.id %}" ><img id="image" class="image" src="{{ post.photo.url }}" style="padding:10px 0px 0px 0px;"></a>
-
-        </div>
-        <div class="col-md-2"></div>
-        </div>
-        {% endfor %}
-        </tr>
-
+            <h2>너희들도 moDeL 어때팀의 <mark>인물 구도 추천 서비스</mark>입니다!</h2>
+    </div>
+    <div style="padding:50px 0px 0px 0px;">
+            <h4 id ="ratio"></h4>
+            <h5 id ="notFound"></h5>
+            <h3 id ="realtime_ratio" style="padding:10px 0px 15px 0px;"></h3>
+            <h4 id ="result" style="padding:0px 0px 15px 0px;"></h4>
+            <button type="button" onclick="location.href='{% url 'photo:photo_upload' %}'" class="btn btn-dark btn-lg">Upload</button>
+            <video id="video" width="640" height="480" autoplay muted playsinline></video>
+            <canvas id="canvas"></canvas>
     </div>
 
+    <div class="photo">
+        <a  style="text-decoration:none; color: black" onclick="this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0)">
+            <button class="btn btn-dark" type="button" onMouseOver="this.innerHTML='사진 닫기'" onMouseOut="this.innerHTML='사진 보기'">사진 보기</button>
+        </a>
+        <div style="DISPLAY: none">
+            <tr>
+            {% for post in photos %}
+            <div class="row">
+                <div class="col-md-8" panel panel-default>
+                    <a href="{% url 'photo:photo_delete' pk=post.id %}" ><img id="image" class="image" src="{{ post.photo.url }}" style="padding:10px 0px 0px 0px;"></a>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            {% endfor %}
+            </tr>
+        </div>
     </div>
     </center>
 {% endblock %}
@@ -96,6 +91,8 @@
             var last_foot = 0.0;
             var ratio = 0.0;
             var ratio_sum = 0.0;
+            var isDone = false;
+    
             if(document.images.length == 0) {
                 document.getElementById('notFound').innerHTML = "❗😲 입력된 사진이 없어요 😲❗" + '<br/>' + "❓🧐 마음에 드는 사진을 넣어보는게 어때요? 🧐❓";
             }
@@ -159,11 +156,11 @@
                 console.log(ratio_sum);
 
                 if(index == document.images.length-1)
-                    done = 1;
+                    isDone = true;
 
             }
             input_ratio = (ratio_sum / document.images.length).toFixed(2);
-            if(done == 1)
+            if(isDone == true)
                 document.getElementById('ratio').innerHTML = "입력하신 사진들로 계산된 희망 비율은 " + input_ratio + " 입니다 😮 ";
         }
 
