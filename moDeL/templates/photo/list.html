@@ -83,6 +83,8 @@
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext("2d");
         const element = document.getElementById('notFound');
+        const element2 = document.getElementById('realtime_ratio');
+        const element3 = document.getElementById('result');
 
         async function loadAndPredict() {
             var size = 0;
@@ -142,7 +144,7 @@
                     for (var y = height - 1; y >= 0; y--) {
                         for (var x = 0; x < width; x++) {
                             if (data[y * width + x] == 22 || data[y * width + x] == 23) {
-                                last_foot = y
+                                last_foot = y;
                                 break loop3;
                             }
                         }
@@ -168,7 +170,7 @@
         loadAndPredict();
 
         if(document.images.length != 0) {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        navigator.mediaDevices.getUserMedia({video: true, audio: false})
             .then(function (stream) {
                 video.srcObject = stream;
             });
@@ -178,6 +180,8 @@
         var x2 = 0;
         var y1 = 0;
         var y2 = 0;
+        var w = 0.0;
+        var h = 0.0;
 
         function draw_rec_red() {
             context.beginPath();
@@ -205,6 +209,16 @@
             context.closePath();
         }
 
+        function cannot_find_foot() {
+            context.lineWidth = "5";
+            context.strokeStyle = "red";
+            context.strokeRect(((w-1)/2) - 275,((h-1)/2) - 40, 550, 60);
+            context.font = "30px Comic Sans MS";
+            context.textAlign = "center";
+            context.fillStyle = "black";
+            context.fillText("🔎🦶 발끝을 인식하지 못했어요 🦶🔍", canvas.width/2, canvas.height/2);
+        }
+
         bodyPix.load().then(model => {
             var data = new Array();
             var size = 0;
@@ -213,6 +227,7 @@
             var first_face = 0.0;
             var last_face = 0.0;
             var last_foot = 0.0;
+            var chk_foot = 0;
 
             video.onloadeddata = (event) => {
                 predict();
@@ -222,10 +237,13 @@
                 model.segmentPersonParts(video).then(segmentation => {
                     console.log(segmentation);
                     canvas.width = video.width;
+                    w = video.width;
                     canvas.height = video.height;
+                    h = video.height;
                     const mask = bodyPix.toColoredPartMask(segmentation);
 
                     console.log(mask);
+                    console.log(canvas.width, video.width, canvas.height, video.height);
 
                     width = segmentation.width;
                     height = segmentation.height;
@@ -250,7 +268,6 @@
                             for (var x = 0; x < width; x++) {
                                 if (data[y * width + x] == 0 || data[y * width + x] == 1) {
                                     last_face = y;
-                                    //y2 = y;
                                     break loop2;
                                 }
                             }
@@ -262,8 +279,11 @@
                                 if (data[y * width + x] == 22 || data[y * width + x] == 23) {
                                     last_foot = y;
                                     y2 = y;
+                                    chk_foot = 1;
                                     break loop3;
                                 }
+                                else
+                                    chk_foot = 0;
                             }
                         }
 
@@ -286,15 +306,22 @@
                             }
                         }
                     realtime_ratio = (Math.abs((last_foot - first_face) / (last_face - first_face))).toFixed(2);
-                    document.getElementById('realtime_ratio').innerHTML = "당신의 현재 비율은 " + realtime_ratio  + "입니다!";
 
-                    if ( input_ratio- realtime_ratio > 0.5) {
-                        draw_rec_red();
-                        document.getElementById('result').innerHTML = "모델 도전에 실패했습니다 😥";
+                    if (chk_foot == 1) {
+                        document.getElementById('realtime_ratio').innerHTML = "당신의 현재 비율은 " + realtime_ratio  + "입니다!";
+                        if ( input_ratio- realtime_ratio > 0.5) {
+                            draw_rec_red();
+                            document.getElementById('result').innerHTML = "모델 도전에 실패했습니다 😥";
+                        }
+                        else {
+                            draw_rec_green();
+                            document.getElementById('result').innerHTML = "모델 도전에 성공했습니다 🎉";
+                        }
                     }
                     else {
-                        draw_rec_green();
-                        document.getElementById('result').innerHTML = "모델 도전에 성공했습니다 🎉";
+                        element2.innerText = '';
+                        element3.innerText = '';
+                        cannot_find_foot();
                     }
 
                     console.log(x1, x2, y1, y2);
