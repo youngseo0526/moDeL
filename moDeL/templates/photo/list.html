@@ -178,6 +178,8 @@
         var y2 = 0;
         var w = 0.0;
         var h = 0.0;
+        var chk_foot = 0;
+        var chk_head = 0;
 
         function draw_rec(color) {
             context.beginPath();
@@ -192,14 +194,22 @@
             context.closePath();
         }
 
-        function cannot_find_foot() {
+        function cannot_find_body() {
             context.lineWidth = "5";
             context.strokeStyle = "red";
+            context.fillStyle = "white";
+            context.globalAlpha = "1.0";
+            context.fillRect(((w-1)/2) - 275,((h-1)/2) - 40, 550, 60);
             context.strokeRect(((w-1)/2) - 275,((h-1)/2) - 40, 550, 60);
             context.font = "30px Comic Sans MS";
             context.textAlign = "center";
             context.fillStyle = "black";
-            context.fillText("🔎🦶 발끝을 인식하지 못했어요 🦶🔍", canvas.width/2, canvas.height/2);
+            if(chk_foot == 0 && chk_head == 1)
+                context.fillText("🔎🦶 발끝을 인식하지 못했어요 🦶🔍", canvas.width/2, canvas.height/2);
+            else if (chk_foot == 1 && chk_head == 0)
+                context.fillText("🔎😟 얼굴을 인식하지 못했어요 😟🔍", canvas.width/2, canvas.height/2);
+            else
+                context.fillText("🙅‍♂️🙅‍♀️ 사람을 인식하지 못했어요 🙅‍♀️🙅‍♂️", canvas.width/2, canvas.height/2);
         }
 
         bodyPix.load().then(model => {
@@ -210,7 +220,6 @@
             var first_face = 0.0;
             var last_face = 0.0;
             var last_foot = 0.0;
-            var chk_foot = 0;
 
             video.onloadeddata = (event) => {
                 predict();
@@ -241,8 +250,11 @@
                                 if (data[y * width + x] == 0 || data[y * width + x] == 1) {
                                     first_face = y;
                                     y1 = y;
+                                    chk_head = 1;
                                     break loop1;
                                 }
+                                else
+                                    chk_head = 0;
                             }
                         }
 
@@ -290,7 +302,7 @@
                         }
                     realtime_ratio = (Math.abs((last_foot - first_face) / (last_face - first_face))).toFixed(2);
 
-                    if (chk_foot == 1) {
+                    if (chk_foot == 1 && chk_head == 1) {
                         document.getElementById('realtime_ratio').innerHTML = "당신의 현재 비율은 " + realtime_ratio  + "입니다!";
                         if ( input_ratio- realtime_ratio > 0.5) {
                             draw_rec("red");
@@ -304,7 +316,7 @@
                     else {
                         element2.innerText = '';
                         element3.innerText = '';
-                        cannot_find_foot();
+                        cannot_find_body();
                     }
 
                     console.log(x1, x2, y1, y2);
