@@ -51,8 +51,7 @@
     <div class="photo">
         <a  style="text-decoration:none; color: black" onclick="this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0)">
             <button class="btn btn-dark" type="button" onMouseOver="this.innerHTML='사진 닫기'" onMouseOut="this.innerHTML='사진 보기'">사진 보기</button>
-        </a>
-        <div style="DISPLAY: none">
+        </a><div style="DISPLAY: none">
             <tr>
             {% for post in photos %}
             <div class="row">
@@ -92,7 +91,7 @@
             var ratio = 0.0;
             var ratio_sum = 0.0;
             var isDone = false;
-    
+
             if(document.images.length == 0) {
                 document.getElementById('notFound').innerHTML = "❗😲 입력된 사진이 없어요 😲❗" + '<br/>' + "❓🧐 마음에 드는 사진을 넣어보는게 어때요? 🧐❓";
             }
@@ -180,22 +179,9 @@
         var w = 0.0;
         var h = 0.0;
 
-        function draw_rec_red() {
+        function draw_rec(color) {
             context.beginPath();
-            context.strokeStyle = "red";
-            context.lineWidth = "5";
-            context.moveTo(x1, y1);
-            context.lineTo(x1, y2);
-            context.lineTo(x2, y2);
-            context.lineTo(x2, y1);
-            context.lineTo(x1, y1);
-            context.stroke();
-            context.closePath();
-        }
-
-        function draw_rec_green() {
-            context.beginPath();
-            context.strokeStyle = "green";
+            context.strokeStyle = color;
             context.lineWidth = "5";
             context.moveTo(x1, y1);
             context.lineTo(x1, y2);
@@ -307,11 +293,11 @@
                     if (chk_foot == 1) {
                         document.getElementById('realtime_ratio').innerHTML = "당신의 현재 비율은 " + realtime_ratio  + "입니다!";
                         if ( input_ratio- realtime_ratio > 0.5) {
-                            draw_rec_red();
+                            draw_rec("red");
                             document.getElementById('result').innerHTML = "모델 도전에 실패했습니다 😥";
                         }
                         else {
-                            draw_rec_green();
+                            draw_rec("green");
                             document.getElementById('result').innerHTML = "모델 도전에 성공했습니다 🎉";
                         }
                     }
@@ -329,5 +315,3 @@
 
     </script>
 {%  endblock %}
-
-
