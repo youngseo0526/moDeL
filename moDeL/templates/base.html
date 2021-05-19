@@ -6,14 +6,17 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2"></script>
     <!-- Load BodyPix -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
 
 
     {% block head %} {% endblock %}
     <title>moDeL{% block title %}{% endblock %}</title>
     <style>
-
-
+        body {
+            font-family: 'Jua', sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -22,7 +25,6 @@
                 <a class="navbar-brand text-light" href="/">moDeL</a>
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                   <div class="navbar-nav">
-                    <a class="nav-link text-light" aria-current="page" href="/">Home</a>
                   </div>
                 </div>
               </div>
