@@ -3,67 +3,62 @@
     <style>
         canvas {
             position: absolute;
-            transform: translate(-50%, -20%);
+            transform: translate(-50%, -80px);
             top: 75%;
             left: 50%;
+            padding: 0px 0px 20px 0px;
 
         }
 
         video {
             position: absolute;
-            transform: translate(-50%, -20%);
+            transform: translate(-50%, -80px);
             top: 75%;
             left: 50%;
+            padding: 0px 0px 20px 0px;
         }
 
-        .photo {
-            position: absolute;
-            transform: translate(-50%, 400px);
-            top: 75%;
-            left: 50%;
-        }
-
-        .image {
-            width: auto; height: auto;
-            max-width: 400px;
-            max-height: 400px;
-        }
     </style>
 {% endblock %}
 {% block title %}{% endblock %}
 
 {% block content %}
     <center>
-    <div class="container" style="padding:50px 0px 0px 0px;">
-
-            <h2>너희들도 moDeL 어때팀의 <mark>인물 구도 추천 서비스</mark>입니다!</h2>
-    </div>
-    <div style="padding:50px 0px 0px 0px;">
-            <h4 id ="ratio"></h4>
-            <h5 id ="notFound"></h5>
-            <h3 id ="realtime_ratio" style="padding:10px 0px 15px 0px;"></h3>
-            <h4 id ="result" style="padding:0px 0px 15px 0px;"></h4>
-            <button type="button" onclick="location.href='{% url 'photo:photo_upload' %}'" class="btn btn-dark btn-lg">Upload</button>
-            <video id="video" width="640" height="480" autoplay muted playsinline></video>
-            <canvas id="canvas"></canvas>
-    </div>
-
-    <div class="photo">
-        <a  style="text-decoration:none; color: black" onclick="this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0)">
-            <button class="btn btn-dark" type="button" onMouseOver="this.innerHTML='사진 닫기'" onMouseOut="this.innerHTML='사진 보기'">사진 보기</button>
-        </a><div style="DISPLAY: none">
-            <tr>
-            {% for post in photos %}
-            <div class="row">
-                <div class="col-md-8" panel panel-default>
-                    <a href="{% url 'photo:photo_delete' pk=post.id %}" ><img id="image" class="image" src="{{ post.photo.url }}" style="padding:10px 0px 0px 0px;"></a>
-                </div>
-                <div class="col-md-2"></div>
-            </div>
-            {% endfor %}
-            </tr>
+        <div class="main" style="padding:50px 0 20px 0;">
+                <h2>너희들도 moDeL 어때팀의 <mark>인물 구도 추천 서비스</mark>입니다!</h2>
         </div>
-    </div>
+
+        <video id="video" width="640" height="480" autoplay muted playsinline></video>
+        <canvas id="canvas"></canvas>
+
+        <div class="results" style="padding:30px 0px 30px 0px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 id ="notFound"></h5>
+                    <h3 id ="realtime_ratio" style="padding:10px 0px 10px 0px;"></h3>
+                    <h4 id ="result"></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="photo">
+            <h5 id ="ratio" style="padding: 0px 0px 10px 0px;"></h5>
+            <h5 id ="notFound"></h5>
+
+            <button type="button" onclick="location.href='{% url 'photo:photo_upload' %}'" class="btn btn-dark">Upload</button>
+            <a  style="text-decoration:none; color: black" onclick="this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0)">
+            <button class="btn btn-dark" type="button" onMouseOver="this.innerHTML='사진 닫기'" onMouseOut="this.innerHTML='사진 보기'">사진 보기</button>
+            </a><div style="DISPLAY: none">
+
+                    <div class="card-group" style="padding: 20px 0px 0px 0px;">
+                        {% for post in photos %}
+                            <div class="card">
+                                <a href="{% url 'photo:photo_delete' pk=post.id %}" ><img id="image" class="image" src="{{ post.photo.url }}" style="padding:10px 50px 10px 50px; height: 300px"></a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
     </center>
 {% endblock %}
 
@@ -316,6 +311,8 @@
                     else {
                         element2.innerText = '';
                         element3.innerText = '';
+                        document.getElementById('realtime_ratio').innerHTML = "전신을 보여주세요 😥";
+
                         cannot_find_body();
                     }
 
