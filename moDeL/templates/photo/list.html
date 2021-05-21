@@ -91,68 +91,69 @@
                 document.getElementById('notFound').innerHTML = "❗😲 입력된 사진이 없어요 😲❗" + '<br/>' + "❓🧐 마음에 드는 사진을 넣어보는게 어때요? 🧐❓";
             }
             for (var index = 0; index < document.images.length; index++) {
-                element.innerText='';
-                document.getElementById('ratio').innerHTML = "👩‍💻 *** 입력하신 사진들로 비율을 계산하는 중이에요 *** 👨‍💻";
-                const net = await bodyPix.load();
+                    element.innerText='';
+                    document.getElementById('ratio').innerHTML = "👩‍💻 *** 입력하신 사진들로 비율을 계산하는 중이에요 *** 👨‍💻";
+                    const net = await bodyPix.load();
 
-                const segmentation = await net.segmentPersonParts(document.images[index], {
-                    flipHorizontal: false,
-                    internalResolution: 'medium',
-                    segmentationThreshold: 0.7
-                });
+                    const segmentation = await net.segmentPersonParts(document.images[index], {
+                        flipHorizontal: false,
+                        internalResolution: 'medium',
+                        segmentationThreshold: 0.7
+                    });
 
-                width = segmentation.width;
-                height = segmentation.height;
-                size = width * height;
+                    width = segmentation.width;
+                    height = segmentation.height;
+                    size = width * height;
 
-                for (var i = 0; i < size; i++) {
-                    data[i] = segmentation.data[i];
+                    for (var i = 0; i < size; i++) {
+                        data[i] = segmentation.data[i];
+                    }
+
+                    console.log(data)
+
+                    loop1:
+                        for (var y = 0; y < height; y++) {
+                            for (var x = 0; x < width; x++) {
+                                if (data[y * width + x] == 0 || data[y * width + x] == 1) {
+                                    first_face = y
+                                    break loop1;
+                                }
+                            }
+                        }
+
+                    loop2:
+                        for (var y = height - 1; y >= 0; y--) {
+                            for (var x = 0; x < width; x++) {
+                                if (data[y * width + x] == 0 || data[y * width + x] == 1) {
+                                    last_face = y
+                                    break loop2;
+                                }
+                            }
+                        }
+
+                    loop3:
+                        for (var y = height - 1; y >= 0; y--) {
+                            for (var x = 0; x < width; x++) {
+                                if (data[y * width + x] == 22 || data[y * width + x] == 23) {
+                                    last_foot = y;
+                                    break loop3;
+                                }
+                            }
+                        }
+
+                    console.log(first_face, last_face, last_foot);
+
+                    ratio = (Math.abs((last_foot - first_face) / (last_face - first_face)));
+                    console.log(ratio);
+
+                    ratio_sum += ratio;
+                    console.log(ratio_sum);
+
+                    if(index == document.images.length-1)
+                        isDone = true;
+
                 }
-
-                console.log(data)
-
-                loop1:
-                    for (var y = 0; y < height; y++) {
-                        for (var x = 0; x < width; x++) {
-                            if (data[y * width + x] == 0 || data[y * width + x] == 1) {
-                                first_face = y
-                                break loop1;
-                            }
-                        }
-                    }
-
-                loop2:
-                    for (var y = height - 1; y >= 0; y--) {
-                        for (var x = 0; x < width; x++) {
-                            if (data[y * width + x] == 0 || data[y * width + x] == 1) {
-                                last_face = y
-                                break loop2;
-                            }
-                        }
-                    }
-
-                loop3:
-                    for (var y = height - 1; y >= 0; y--) {
-                        for (var x = 0; x < width; x++) {
-                            if (data[y * width + x] == 22 || data[y * width + x] == 23) {
-                                last_foot = y;
-                                break loop3;
-                            }
-                        }
-                    }
-
-                console.log(first_face, last_face, last_foot);
-
-                ratio = (Math.abs((last_foot - first_face) / (last_face - first_face)));
-                console.log(ratio);
-
-                ratio_sum += ratio;
-                console.log(ratio_sum);
-
-                if(index == document.images.length-1)
-                    isDone = true;
-
-            }
+            
             input_ratio = (ratio_sum / document.images.length).toFixed(2);
             if(isDone == true)
                 document.getElementById('ratio').innerHTML = "입력하신 사진들로 계산된 희망 비율은 " + input_ratio + " 입니다 😮 ";
@@ -160,7 +161,7 @@
 
         loadAndPredict();
 
-        if(document.images.length != 0) {
+        if(document.images.length >= 3) {
         navigator.mediaDevices.getUserMedia({video: true, audio: false})
             .then(function (stream) {
                 video.srcObject = stream;
@@ -207,7 +208,7 @@
                 context.fillText("🙅‍♂️🙅‍♀️ 사람을 인식하지 못했어요 🙅‍♀️🙅‍♂️", canvas.width/2, canvas.height/2);
         }
 
-        bodyPix.load().then(model => {
+        bodyPix.load().then( model => {
             var data = new Array();
             var size = 0;
             var width = 0;
@@ -301,11 +302,11 @@
                         document.getElementById('realtime_ratio').innerHTML = "당신의 현재 비율은 " + realtime_ratio  + "입니다!";
                         if ( input_ratio- realtime_ratio > 0.5) {
                             draw_rec("red");
-                            document.getElementById('result').innerHTML = "모델 도전에 실패했습니다 😥";
+                            document.getElementById('result').innerHTML = "더 좋은 사진을 찍을 수 있어요 😥";
                         }
                         else {
                             draw_rec("green");
-                            document.getElementById('result').innerHTML = "모델 도전에 성공했습니다 🎉";
+                            document.getElementById('result').innerHTML = "좋은 구도의 사진을 찍고있어요 🎉";
                         }
                     }
                     else {
