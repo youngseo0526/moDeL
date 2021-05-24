@@ -127,14 +127,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#AWS_ACCESS_KEY_ID = 'AKIAZTCJAUP4EV66OETI'
-#AWS_SECRET_ACCESS_KEY = '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'
-#AWS_REGION = 'ap-northeast-2'
-#AWS_STORAGE_BUCKET_NAME = 'model'
-#AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
-#AWS_S3_OBJECT_PARAMETERS = {
-#    'CacheControl': 'max-age=86400',
-#}
-
-#DEFAULT_FILE_STORAGE = 'moDeL.asset_storage.MediaStorage'
 
