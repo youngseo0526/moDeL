@@ -2,11 +2,13 @@
 
 > Semantic segmentation 기술을 이용한 인물구도 추천 서비스
 
+[![Video Label](https://www.youtube.com/watch?v=xAwtfL2Er7o/0.jpg)](https://www.youtube.com/watch?v=xAwtfL2Er7o)
+
   우리는 구도가 좋은 인물사진을 찍을 수 있도록 인물의 비율을 실시간으로 측정해 카메라를 조정할 수 있게 유도했다. 이를 위해 인물 전신의 비율을 실시간으로 측정하는 기술이 필요했고 BodyPix 모델을 사용했다.
   BodyPix는 구글이 공개한 실시간 person segmentation과 body-part segmentation을 하는 오픈소스 machine learning 모델이다. 이미지를 사람으로 인식된 픽셀(전경)과 안 된 픽셀(배경)로 분류하고, 나아가 사람으로 인식된 픽셀을 얼굴, 팔, 몸통 등 인체의 24개 파트로 나누어 분류한다. BodyPix의 가장 큰 특징은 특별한 장비 없이 웹캠이나 스마트폰 카메라로도 실시간 동작하는 것이다. 때문에 자바스크립트(JavaScript) 라이브러리인  tensorflow.js 기반으로 만들어졌고, 이 실시간성이 우리가 최종적으로 구현하고 싶은 앱과 맞닿아 있어 선택하게 됐다.
 
-> 구현 기술 
-  1. BodyPix의 모델 학습 방법  
+--- 
+1. BodyPix의 모델 학습 방법  
   BodyPix는 convolutional neural network(CNN) 알고리즘을 이용하는데 ResNet 모델과 MobileNet 모델을 둘 다 학습시켰다. ResNet 모델이 더 정확하지만 MobileNet 모델이 mobile device과 사용자들의 일반적인 컴퓨터에 더 효율적으로 작동한다.
   모든 training data를 annotate 해주는 것은 시간이 아주 오래걸리는 일이다. 그래서 구글은 컴퓨터 그래픽스를 이용해 ground truth body part segmentation annotation이 있는 images를 만들었다. 모델을 학습하기 위해, 이들은 rendered image와 실제 COCO images(instance segmentation annotation)를 동시에 이용했다.
   training data를 섞어 사용하는 점과 multi-task loss로, ResNet 모델은 simulated annotation만으로 24 body-part prediction capability를 학습할 수 있게 되었다.
