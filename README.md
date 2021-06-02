@@ -23,7 +23,7 @@
   우리는 구도가 좋은 인물사진을 찍을 수 있도록 인물의 비율을 실시간으로 측정해 카메라를 조정할 수 있게 유도했다. 이를 위해 인물 전신의 비율을 실시간으로 측정하는 기술이 필요했고 **BodyPix** 모델을 사용했다.
   BodyPix는 구글이 공개한 실시간 person segmentation과 body-part segmentation을 하는 오픈소스 machine learning 모델이다. 이미지를 사람으로 인식된 픽셀(전경)과 안 된 픽셀(배경)로 분류하고, 나아가 사람으로 인식된 픽셀을 얼굴, 팔, 몸통 등 인체의 24개 파트로 나누어 분류한다. BodyPix의 가장 큰 특징은 특별한 장비 없이 웹캠이나 스마트폰 카메라로도 실시간 동작하는 것이다. 때문에 자바스크립트(JavaScript) 라이브러리인  tensorflow.js 기반으로 만들어졌고, 이 실시간성이 우리가 최종적으로 구현하고 싶은 앱과 맞닿아 있어 선택하게 됐다.
 
-BodyPix 공식 blog: https://blog.tensorflow.org/2019/11/updated-bodypix-2.html
+#### BodyPix 공식 blog: https://blog.tensorflow.org/2019/11/updated-bodypix-2.html
 
 --- 
 
