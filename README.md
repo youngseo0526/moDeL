@@ -10,23 +10,26 @@
   BodyPix는 convolutional neural network(CNN) 알고리즘을 이용하는데 ResNet 모델과 MobileNet 모델을 둘 다 학습시켰다. ResNet 모델이 더 정확하지만 MobileNet 모델이 mobile device과 사용자들의 일반적인 컴퓨터에 더 효율적으로 작동한다.
   모든 training data를 annotate 해주는 것은 시간이 아주 오래걸리는 일이다. 그래서 구글은 컴퓨터 그래픽스를 이용해 ground truth body part segmentation annotation이 있는 images를 만들었다. 모델을 학습하기 위해, 이들은 rendered image와 실제 COCO images(instance segmentation annotation)를 동시에 이용했다.
   training data를 섞어 사용하는 점과 multi-task loss로, ResNet 모델은 simulated annotation만으로 24 body-part prediction capability를 학습할 수 있게 되었다.
+![image01](https://user-images.githubusercontent.com/62318430/120515399-3c477d80-c409-11eb-8e09-93e3ecd80f8b.png)
 
   마지막으로 COCO 이미지에 대한 ResNet 모델(선생님 역할)의 prediction을 MobileNet(학생 역할)에 distill한다.
+![image02](https://user-images.githubusercontent.com/62318430/120515429-42d5f500-c409-11eb-9f98-9b481267958d.png)
 
 --- 
   2. person segmentation, body segmentation
   person segmentation으로 사람인지 아닌지에 대한 픽셀 정보와 body-part segmentation으로 해당 신체부위가 맞는지 아닌지에 대한 픽셀정보를 취합해 사람이 아닌 픽셀은 -1, 그리고 사람으로 인식된 픽셀은 24가지 신체부위별로 각각 0-23 의 값을 가지며 output으로 나온다. 
  구체적으로, input image의 픽셀들은 MobileNet 모델과 sigmoid 함수를 거쳐 24개의 channel에서 0-1사이의 확률로 나타내어지고, threshold(임계점)을 기준으로 각 픽셀들은 (0과 1) binary한 값을 갖게 된다. 
 이후 다음 표와 같이 신체를 24개로 분할해 0에서 23까지 part ID를 부여한다. 
-
- 
-
+![image03](https://user-images.githubusercontent.com/62318430/120515447-45d0e580-c409-11eb-9b3e-34122da92a41.png)
+![image04](https://user-images.githubusercontent.com/62318430/120515466-49646c80-c409-11eb-87d5-4b6b7fab0673.png)
+![image05](https://user-images.githubusercontent.com/62318430/120515470-4a959980-c409-11eb-8187-4ae2a7fb5cac.png)
 
 --- 
   3. BodyPix 기술의 사용
   코드 상의 output 형태를 보고 원하던 전신비율측정 방법을 생각할 수 있었다.
 비율측정을 위해 머리로 인식된 가장 첫번째 픽셀과 가장 마지막 픽셀의 y좌표, 그리고 발로 인식된 가장 마지막 픽셀의 y좌표를 구해, 각각의 값을 아래의 수식에 넣어 비율을 계산하는 방법을 고안했다.
 
+![image06](https://user-images.githubusercontent.com/62318430/120515472-4b2e3000-c409-11eb-97cb-71332bd8cf1e.png)
 
   1. 기존 앱과의 차별성
   현재 유사 어플로 인물 구도 전문 카메라 앱인 ‘SOVS’가 있다.  ‘SOVS’는 촬영하고 싶은 인물의 구도를 흰 색 가이드라인을 이용해 사용자가 직접 설정한다. 정해진 실루엣이 있고 사용자가 피사체를 실루엣 안으로 직접 맞춰 줘야한다.
