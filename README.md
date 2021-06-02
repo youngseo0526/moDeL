@@ -2,6 +2,8 @@
 
 > Semantic segmentation 기술을 이용한 인물구도 추천 서비스
 
+#### 아래 사진 클릭시 서비스 발표 영상으로 이동합니다 👀
+
 [![Video Label](http://img.youtube.com/vi/xAwtfL2Er7o/0.jpg)](https://www.youtube.com/watch?v=xAwtfL2Er7o)
 
   우리는 구도가 좋은 인물사진을 찍을 수 있도록 인물의 비율을 실시간으로 측정해 카메라를 조정할 수 있게 유도했다. 이를 위해 인물 전신의 비율을 실시간으로 측정하는 기술이 필요했고 BodyPix 모델을 사용했다.
