@@ -5,10 +5,15 @@
 
 
 
+
+
 #### 아래 사진 클릭시 서비스 발표 영상으로 이동합니다 👀
 
 [![Video Label](http://img.youtube.com/vi/xAwtfL2Er7o/0.jpg)](https://www.youtube.com/watch?v=xAwtfL2Er7o)
 
+
+
+---
 
 
 ## 개발 필요성
@@ -20,6 +25,7 @@
 
 BodyPix 공식 blog: https://blog.tensorflow.org/2019/11/updated-bodypix-2.html
 
+--- 
 
 
 ## 구현 기술 
@@ -54,6 +60,7 @@ BodyPix 공식 blog: https://blog.tensorflow.org/2019/11/updated-bodypix-2.html
 
 ![image06](https://user-images.githubusercontent.com/62318430/120515472-4b2e3000-c409-11eb-97cb-71332bd8cf1e.png)
 
+---
 ## 기대 효과 
   ### 1. 기존 앱과의 차별성
   현재 유사 어플로 인물 구도 전문 카메라 앱인 ‘SOVS’가 있다.  ‘SOVS’는 촬영하고 싶은 인물의 구도를 흰 색 가이드라인을 이용해 사용자가 직접 설정한다. 정해진 실루엣이 있고 사용자가 피사체를 실루엣 안으로 직접 맞춰 줘야한다.
