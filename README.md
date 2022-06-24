@@ -5,14 +5,12 @@
 
 
 
-
-
 #### 아래 사진 클릭시 서비스 발표 영상으로 이동합니다 👀
 
 [![Video Label](http://img.youtube.com/vi/xAwtfL2Er7o/0.jpg)](https://www.youtube.com/watch?v=xAwtfL2Er7o)
 
 
-
+[demo]( https://model-deeplearning2021.herokuapp.com/)
 ---
 
 
